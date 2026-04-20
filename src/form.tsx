@@ -1,0 +1,203 @@
+import React, { useState, useEffect } from "react";
+import { Box, TextField, Typography, MenuItem, Button, } from "@mui/material";
+import Grid from "@mui/material/Grid";
+
+interface FormData {
+  firstName: string;
+  middleName: string;
+  lastName: string;
+  gender: string;
+  state: string;
+  lga: string;
+}
+
+const SimpleForm: React.FC = () => {
+  const [formData, setFormData] = useState<FormData>({
+    firstName: "",
+    middleName: "",
+    lastName: "",
+    gender: "",
+    state: "",
+    lga: "",
+  });
+
+  const [states, setStates] = useState<string[]>([]);
+  const [lgas, setLgas] = useState<string[]>([]);
+
+  useEffect(() => {
+    const fetchStates = async () => {
+      try {
+        const res = await fetch("https://nga-states-lga.onrender.com/fetch");
+        const data = await res.json();
+        
+        const mappedStates = data.map((item: string) => item);
+
+        setStates(mappedStates || []);
+      } catch (error) {
+        console.error("Error fetching states:", error);
+      }
+    };
+
+    fetchStates();
+  }, []);
+
+  const handleChange = async (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    const { name, value } = e.target;
+
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+      ...(name === "state" && { lga: "" }),
+    }));
+
+
+    if (name === "state") {
+      try {
+        const res = await fetch(
+          `https://nga-states-lga.onrender.com/?state=${value}`
+        );
+        const data = await res.json();
+        console.log(data, "lga data");
+
+        setLgas(data || data || []);
+      } catch (error) {
+        console.error("Error fetching LGAs:", error);
+        setLgas([]);
+      }
+    }
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    console.log(formData);
+  };
+  return (
+    <Box
+      sx={{
+        minHeight: "100vh",
+        bgcolor: "#0b1f3a",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        px: 2,
+      }}
+    >
+      <Box
+        component="form"
+        onSubmit={handleSubmit}
+        sx={{
+          width: "100%",
+          maxWidth: 600,
+          bgcolor: "#ffffff",
+          p: 4,
+          borderRadius: 3,
+          boxShadow: 5,
+        }}
+      >
+        <Typography variant="h5" sx={{ mb: 3, textAlign: "center" }}>
+          Input your details
+        </Typography>
+
+        <Grid container spacing={3}>
+          <Grid item xs={12} sm={4}>
+            <TextField
+              fullWidth
+              label="First Name"
+              name="firstName"
+              value={formData.firstName}
+              onChange={handleChange}
+            />
+          </Grid>
+
+          <Grid item xs={12} sm={4}>
+            <TextField
+              fullWidth
+              label="Middle Name"
+              name="middleName"
+              value={formData.middleName}
+              onChange={handleChange}
+            />
+          </Grid>
+
+          <Grid item xs={12} sm={4}>
+            <TextField
+              fullWidth
+              label="Last Name"
+              name="lastName"
+              value={formData.lastName}
+              onChange={handleChange}
+            />
+          </Grid>
+
+          <Grid item xs={12}>
+            <TextField
+              select
+              fullWidth
+              label="Gender"
+              name="gender"
+              value={formData.gender}
+              onChange={handleChange}
+              sx = {{width: "200px"}}
+            >
+              <MenuItem value="Male">Male</MenuItem>
+              <MenuItem value="Female">Female</MenuItem>
+            </TextField>
+          </Grid>
+          {console.log(formData, "formData")}
+
+          <Grid item xs={12}>
+            <TextField
+              select
+              fullWidth
+              label="Select state"
+              name="state"
+              value={formData.state}
+              onChange={handleChange}
+              sx={{
+                "& .MuiInputBase-root": { width: 206, },
+              }}
+            >
+              {states.map((state) => (
+                <MenuItem key={state} value={state}>
+                  {state}
+                </MenuItem>
+              ))}
+            </TextField>
+          </Grid>
+
+          <Grid item xs={12}>
+            <TextField
+              select
+              fullWidth
+              label="Select LGA"
+              name="lga"
+              value={formData.lga}
+              onChange={handleChange}
+              disabled={!formData.state}
+              sx={{
+                "& .MuiInputBase-root": { width: 206, },
+              }}
+
+            >
+              {lgas.map((lga) => (
+                <MenuItem key={lga} value={lga}>
+                  {lga}
+                </MenuItem>
+              ))}
+            </TextField>
+          </Grid>
+
+          <Grid item xs={12}>
+            <Button type="submit" variant="contained" fullWidth>
+              Submit
+            </Button>
+          </Grid>
+        </Grid>
+      </Box>
+    </Box>
+  );
+};
+
+export default SimpleForm;
