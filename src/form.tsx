@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Box, TextField, Typography, MenuItem, Button, } from "@mui/material";
+import { Box, TextField, Typography, MenuItem, Button, Alert, Snackbar } from "@mui/material";
 import Grid from "@mui/material/Grid";
 
 interface FormData {
@@ -24,12 +24,14 @@ const SimpleForm: React.FC = () => {
   const [states, setStates] = useState<string[]>([]);
   const [lgas, setLgas] = useState<string[]>([]);
 
+  const [openAlert, setOpenAlert] = useState(false);
+
   useEffect(() => {
     const fetchStates = async () => {
       try {
         const res = await fetch("https://nga-states-lga.onrender.com/fetch");
         const data = await res.json();
-        
+
         const mappedStates = data.map((item: string) => item);
 
         setStates(mappedStates || []);
@@ -69,10 +71,13 @@ const SimpleForm: React.FC = () => {
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    console.log(formData);
+ const handleSubmit = (e: React.FormEvent) => {
+  e.preventDefault();
+  console.log(formData);
+
+  setOpenAlert(true); 
   };
+
   return (
     <Box
       sx={{
@@ -130,7 +135,6 @@ const SimpleForm: React.FC = () => {
               onChange={handleChange}
             />
           </Grid>
-
           <Grid item xs={12}>
             <TextField
               select
@@ -139,13 +143,13 @@ const SimpleForm: React.FC = () => {
               name="gender"
               value={formData.gender}
               onChange={handleChange}
-              sx = {{width: "200px"}}
+              sx={{ width: "200px" }}
             >
               <MenuItem value="Male">Male</MenuItem>
               <MenuItem value="Female">Female</MenuItem>
             </TextField>
           </Grid>
-          {console.log(formData, "formData")}
+
 
           <Grid item xs={12}>
             <TextField
@@ -195,7 +199,20 @@ const SimpleForm: React.FC = () => {
             </Button>
           </Grid>
         </Grid>
-      </Box>
+
+        <Snackbar
+        open={openAlert}
+         autoHideDuration={3000}
+         onClose={() => setOpenAlert(false)}
+          anchorOrigin={{ vertical: "top", horizontal: "center" }}>
+             <Alert
+               onClose={() => setOpenAlert(false)}
+               severity="success" variant="filled"
+               >
+                  Sign up successful!
+                  </Alert>
+                  </Snackbar>
+ </Box>
     </Box>
   );
 };
