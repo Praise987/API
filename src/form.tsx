@@ -1,6 +1,15 @@
 import React, { useState, useEffect } from "react";
-import { Box, TextField, Typography, MenuItem, Button, Alert, Snackbar } from "@mui/material";
+import {
+  Box,
+  TextField,
+  Typography,
+  MenuItem,
+  Button,
+  Alert,
+  Snackbar,
+} from "@mui/material";
 import Grid from "@mui/material/Grid";
+import type { SelectChangeEvent } from "@mui/material";
 
 interface FormData {
   firstName: string;
@@ -23,7 +32,6 @@ const SimpleForm: React.FC = () => {
 
   const [states, setStates] = useState<string[]>([]);
   const [lgas, setLgas] = useState<string[]>([]);
-
   const [openAlert, setOpenAlert] = useState(false);
 
   useEffect(() => {
@@ -31,10 +39,7 @@ const SimpleForm: React.FC = () => {
       try {
         const res = await fetch("https://nga-states-lga.onrender.com/fetch");
         const data = await res.json();
-
-        const mappedStates = data.map((item: string) => item);
-
-        setStates(mappedStates || []);
+        setStates(data || []);
       } catch (error) {
         console.error("Error fetching states:", error);
       }
@@ -44,9 +49,12 @@ const SimpleForm: React.FC = () => {
   }, []);
 
   const handleChange = async (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    e:
+      | React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+      | SelectChangeEvent
   ) => {
-    const { name, value } = e.target;
+    const name = e.target.name as keyof FormData;
+    const value = e.target.value;
 
     setFormData((prev) => ({
       ...prev,
@@ -54,16 +62,13 @@ const SimpleForm: React.FC = () => {
       ...(name === "state" && { lga: "" }),
     }));
 
-
     if (name === "state") {
       try {
         const res = await fetch(
           `https://nga-states-lga.onrender.com/?state=${value}`
         );
         const data = await res.json();
-        console.log(data, "lga data");
-
-        setLgas(data || data || []);
+        setLgas(data || []);
       } catch (error) {
         console.error("Error fetching LGAs:", error);
         setLgas([]);
@@ -71,11 +76,10 @@ const SimpleForm: React.FC = () => {
     }
   };
 
- const handleSubmit = (e: React.FormEvent) => {
-  e.preventDefault();
-  console.log(formData);
-
-  setOpenAlert(true); 
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    console.log(formData);
+    setOpenAlert(true);
   };
 
   return (
@@ -106,7 +110,7 @@ const SimpleForm: React.FC = () => {
         </Typography>
 
         <Grid container spacing={3}>
-          <Grid item xs={12} sm={4}>
+          <Grid size={{ xs: 12, sm: 4 }}>
             <TextField
               fullWidth
               label="First Name"
@@ -116,7 +120,7 @@ const SimpleForm: React.FC = () => {
             />
           </Grid>
 
-          <Grid item xs={12} sm={4}>
+          <Grid size={{ xs: 12, sm: 4 }}>
             <TextField
               fullWidth
               label="Middle Name"
@@ -126,7 +130,7 @@ const SimpleForm: React.FC = () => {
             />
           </Grid>
 
-          <Grid item xs={12} sm={4}>
+          <Grid size={{ xs: 12, sm: 4 }}>
             <TextField
               fullWidth
               label="Last Name"
@@ -135,7 +139,8 @@ const SimpleForm: React.FC = () => {
               onChange={handleChange}
             />
           </Grid>
-          <Grid item xs={12}>
+
+          <Grid size={12}>
             <TextField
               select
               fullWidth
@@ -143,15 +148,13 @@ const SimpleForm: React.FC = () => {
               name="gender"
               value={formData.gender}
               onChange={handleChange}
-              sx={{ width: "200px" }}
             >
               <MenuItem value="Male">Male</MenuItem>
               <MenuItem value="Female">Female</MenuItem>
             </TextField>
           </Grid>
 
-
-          <Grid item xs={12}>
+          <Grid size={12}>
             <TextField
               select
               fullWidth
@@ -159,9 +162,6 @@ const SimpleForm: React.FC = () => {
               name="state"
               value={formData.state}
               onChange={handleChange}
-              sx={{
-                "& .MuiInputBase-root": { width: 206, },
-              }}
             >
               {states.map((state) => (
                 <MenuItem key={state} value={state}>
@@ -171,7 +171,7 @@ const SimpleForm: React.FC = () => {
             </TextField>
           </Grid>
 
-          <Grid item xs={12}>
+          <Grid size={12}>
             <TextField
               select
               fullWidth
@@ -180,10 +180,6 @@ const SimpleForm: React.FC = () => {
               value={formData.lga}
               onChange={handleChange}
               disabled={!formData.state}
-              sx={{
-                "& .MuiInputBase-root": { width: 206, },
-              }}
-
             >
               {lgas.map((lga) => (
                 <MenuItem key={lga} value={lga}>
@@ -193,7 +189,7 @@ const SimpleForm: React.FC = () => {
             </TextField>
           </Grid>
 
-          <Grid item xs={12}>
+          <Grid size={12}>
             <Button type="submit" variant="contained" fullWidth>
               Submit
             </Button>
@@ -201,18 +197,20 @@ const SimpleForm: React.FC = () => {
         </Grid>
 
         <Snackbar
-        open={openAlert}
-         autoHideDuration={3000}
-         onClose={() => setOpenAlert(false)}
-          anchorOrigin={{ vertical: "top", horizontal: "center" }}>
-             <Alert
-               onClose={() => setOpenAlert(false)}
-               severity="success" variant="filled"
-               >
-                  Sign up successful!
-                  </Alert>
-                  </Snackbar>
- </Box>
+          open={openAlert}
+          autoHideDuration={3000}
+          onClose={() => setOpenAlert(false)}
+          anchorOrigin={{ vertical: "top", horizontal: "center" }}
+        >
+          <Alert
+            onClose={() => setOpenAlert(false)}
+            severity="success"
+            variant="filled"
+          >
+            Sign up successful!
+          </Alert>
+        </Snackbar>
+      </Box>
     </Box>
   );
 };
