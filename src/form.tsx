@@ -33,8 +33,10 @@ const SimpleForm: React.FC = () => {
   const [states, setStates] = useState<string[]>([]);
   const [lgas, setLgas] = useState<string[]>([]);
   const [openAlert, setOpenAlert] = useState(false);
+  
 
   useEffect(() => {
+    
     const fetchStates = async () => {
       try {
         const res = await fetch("https://nga-states-lga.onrender.com/fetch");
@@ -48,6 +50,7 @@ const SimpleForm: React.FC = () => {
     fetchStates();
   }, []);
 
+  
   const handleChange = async (
     e:
       | React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -188,7 +191,7 @@ const SimpleForm: React.FC = () => {
               ))}
             </TextField>
           </Grid>
-                //comment
+              
           <Grid size={12}>
             <Button type="submit" variant="contained" fullWidth>
               Submit
