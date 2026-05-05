@@ -181,9 +181,9 @@ const SimpleForm: React.FC = () => {
               onChange={handleChange}
               disabled={!formData.state}
             >
-              {lgas.map((lga) => (
-                <MenuItem key={lga} value={lga}>
-                  {lga}
+          {lgas.map((lga) => (
+             <MenuItem key={lga} value={lga}>
+               {lga}
                 </MenuItem>
               ))}
             </TextField>
